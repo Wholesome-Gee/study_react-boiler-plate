@@ -2,10 +2,9 @@ const express = require("express");
 const app = express();
 const port = 3300;
 const { User } = require("./models/User");
-
+const config = require("./config/key"); // 환경변수 설정
 // mongodb와 연결
-const dbUrl =
-  "mongodb+srv://wholesome-gee:wlfyd1564@freecluster.0ds7963.mongodb.net/boiler-plate?retryWrites=true&w=majority&appName=FreeCluster/boiler-plate";
+const dbUrl = config.mongoURI;
 const mongoose = require("mongoose");
 mongoose
   .connect(dbUrl)
