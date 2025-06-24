@@ -37,10 +37,25 @@ userSchema.methods.comparePW = function (password) {
   return bcrypt.compare(password, user.password);
 };
 
-userSchema.methods.createToken = async function () {
+// token을 만들어주는 method
+userSchema.methods.createToken = function () {
   const user = this;
-  const token = jwt.sign(user._id.toHexString(), "tokenKey");
+  const token = jwt.sign(user._id.toHexString(), "tokenKey"); // user._id의 token이 생성되고 이 tokend의 key값은 tokenKey임
   return token;
+};
+
+// token으로 db에서 user를 찾는 method
+userSchema.statics.findByToken = async function (userToken) {
+  const user = this;
+  try {
+    const decodedUserId = jwt.verify(userToken, "tokenKey"); // encode된 userToken을 jwt.verify를 활용해 decode
+    console.log(decodedUserId);
+
+    const user = await user.findOne({ _id: decodedUserId, token: userToken });
+    return user;
+  } catch (err) {
+    throw err;
+  }
 };
 
 const User = mongoose.model("User", userSchema); // db에 users collection이 생성됨

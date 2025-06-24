@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const { User } = require("./models/User");
-
+const { authMiddleware } = require("./middlewares/authMiddleware");
 const config = require("./config/key"); // 환경변수 설정
 const port = 3300;
 const app = express();
@@ -21,6 +21,18 @@ app.use(cookieParser()); // cookie에 token을 담기 위한 설정
 
 // get 요청
 app.get("/", (req, res) => res.send("main 페이지"));
+app.get("/auth", authMiddleware, (req, res) => {
+  // login한 유저인지, admin인지 인증하는 route
+  res.status(200).json({
+    _id: req.user._id,
+    isManager: req.user.manager,
+    isAuth: true,
+    email: req.user.email,
+    name: req.user.name,
+    manager: req.user.manager,
+    image: req.user.image,
+  });
+});
 
 // post 요청
 app.post("/join", async (req, res) => {
@@ -48,7 +60,7 @@ app.post("/login", async (req, res) => {
     const token = await user.createToken();
     user.token = token;
     await user.save();
-    return res.cookie("cookieName", user.token).status(200).json({ loginSuccess: true, message: "로그인 성공" });
+    return res.cookie("userToken", user.token).status(200).json({ loginSuccess: true, message: "로그인 성공" });
   } catch (err) {
     return res.json({ loginSuccess: false, message: `server Error ${err}` });
   }
