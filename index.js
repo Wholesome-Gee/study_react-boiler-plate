@@ -30,4 +30,22 @@ app.post("/join", async (req, res) => {
   }
 });
 
+app.post("/login", async (req, res) => {
+  try {
+    // step1. req.body.email이 db에 있는지
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.json({ loginSuccess: false, message: `가입되지 않은 email입니다.` });
+    }
+    // step2. req.body.password가 user의 password와 일치하는지
+    const isMatch = await user.comparePW(req.body.password); // User.js에 userShema.methods.comparePW 만들기
+    if (!isMatch) return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다." });
+    // step3. session에 token을 부여
+    //
+    return res.json({ loginSuccess: true, message: "로그인 성공" });
+  } catch (err) {
+    return res.json({ loginSuccess: false, message: `server Error ${err}` });
+  }
+});
+
 app.listen(port, () => console.log(`✅ server on : http://localhost:${port}`));

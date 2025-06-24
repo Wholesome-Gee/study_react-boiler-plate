@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const saltRound = 10; // 해싱횟수
-
 const userSchema = mongoose.Schema({
   name: { type: String, maxlength: 16 },
   email: { type: String, trim: true, unique: true },
@@ -13,13 +11,14 @@ const userSchema = mongoose.Schema({
 });
 
 userSchema.pre("save", function (next) {
-  let user = this;
+  const user = this;
   if (user.isModified("password")) {
-    bcrypt.genSalt(saltRound, function (err, salt) {
-      // getSalt는 saltRound숫자만큼 해싱하는 소금을 생성하고, salt에 담는다.
+    bcrypt.genSalt(10, function (err, salt) {
+      console.log("salt란?", salt);
+      // 10번 해싱하는 salt를 만든다.
       if (err) return next(err);
       bcrypt.hash(user.password, salt, function (err, hash) {
-        // 대상을 salt로 해싱하고, 그 값을 hash에 담는다.
+        // user.password를 salt로 해싱하고, 그 값을 hash에 담는다.
         if (err) return next(err);
         user.password = hash;
         next();
@@ -29,6 +28,12 @@ userSchema.pre("save", function (next) {
     next();
   }
 });
+
+// password와 해싱된 password가 일치한지 비교하는 method
+userSchema.methods.comparePW = function (password) {
+  const user = this;
+  return bcrypt.compare(password, user.password);
+};
 
 const User = mongoose.model("User", userSchema); // db에 users collection이 생성됨
 
