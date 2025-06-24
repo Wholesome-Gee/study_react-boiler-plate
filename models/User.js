@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 const userSchema = mongoose.Schema({
   name: { type: String, maxlength: 16 },
   email: { type: String, trim: true, unique: true },
@@ -33,6 +35,12 @@ userSchema.pre("save", function (next) {
 userSchema.methods.comparePW = function (password) {
   const user = this;
   return bcrypt.compare(password, user.password);
+};
+
+userSchema.methods.createToken = async function () {
+  const user = this;
+  const token = jwt.sign(user._id.toHexString(), "tokenKey");
+  return token;
 };
 
 const User = mongoose.model("User", userSchema); // db에 users collection이 생성됨
