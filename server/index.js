@@ -1,9 +1,7 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
 const { User } = require("./models/User");
 const { authMiddleware } = require("./middlewares/authMiddleware");
 const config = require("./config/key"); // 환경변수 설정
-const port = 3300;
+const express = require("express");
 const app = express();
 
 // mongodb와 연결
@@ -14,10 +12,28 @@ mongoose
   .then((res) => console.log("✅ db 연결"))
   .catch((err) => console.log("❌ db 연결 실패: ", err));
 
-// use 전역요청
+// req.body를 사용하기 위한 설정
 app.use(express.urlencoded({ extended: true })); // req.body를 사용하기 위한 설정1
 app.use(express.json()); // req.body를 사용하기 위한 설정2
-app.use(cookieParser()); // cookie에 token을 담기 위한 설정
+
+// cookie에 token을 담기 위한 설정
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+// cors 정책 설정
+const cors = require("cors");
+const allowedOrigins = ["http://localhost:3000", "http://localhost:4000"];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 
 // get 요청
 app.get("/", (req, res) => res.send("main 페이지"));
@@ -42,6 +58,10 @@ app.get("/logout", authMiddleware, async (req, res) => {
   } catch (err) {
     res.json({ loginSuccess: false, message: `❌ 로그아웃 실패: ${err}` });
   }
+});
+
+app.get("/api/hi", (req, res) => {
+  res.send("hi");
 });
 
 // post 요청
@@ -75,4 +95,5 @@ app.post("/login", async (req, res) => {
   }
 });
 
+const port = 5000;
 app.listen(port, () => console.log(`✅ server on : http://localhost:${port}`));
