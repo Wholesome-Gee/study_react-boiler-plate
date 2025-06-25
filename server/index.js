@@ -21,6 +21,7 @@ app.use(cookieParser()); // cookie에 token을 담기 위한 설정
 
 // get 요청
 app.get("/", (req, res) => res.send("main 페이지"));
+
 app.get("/auth", authMiddleware, (req, res) => {
   // login한 유저인지, admin인지 인증하는 route
   res.status(200).json({
@@ -33,8 +34,8 @@ app.get("/auth", authMiddleware, (req, res) => {
     image: req.user.image,
   });
 });
+
 app.get("/logout", authMiddleware, async (req, res) => {
-  //
   try {
     await User.findOneAndUpdate({ _id: req.user._id }, { token: "" });
     res.status(200).send({ logoutSuccess: true, message: "⭕ 로그아웃 되었습니다." });

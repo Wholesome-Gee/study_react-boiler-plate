@@ -4,7 +4,7 @@
   "description": "인프런 JohnAhn님의 node/react 기초강의",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon index.js",
+    "server": "nodemon server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "wholesome-gee",
