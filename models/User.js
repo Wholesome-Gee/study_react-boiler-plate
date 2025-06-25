@@ -49,10 +49,8 @@ userSchema.statics.findByToken = async function (userToken) {
   const user = this;
   try {
     const decodedUserId = jwt.verify(userToken, "tokenKey"); // encode된 userToken을 jwt.verify를 활용해 decode
-    console.log(decodedUserId);
-
-    const user = await user.findOne({ _id: decodedUserId, token: userToken });
-    return user;
+    const matchUser = await user.findOne({ _id: decodedUserId, token: userToken });
+    return matchUser;
   } catch (err) {
     throw err;
   }

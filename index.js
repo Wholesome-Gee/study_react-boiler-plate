@@ -33,6 +33,15 @@ app.get("/auth", authMiddleware, (req, res) => {
     image: req.user.image,
   });
 });
+app.get("/logout", authMiddleware, async (req, res) => {
+  //
+  try {
+    await User.findOneAndUpdate({ _id: req.user._id }, { token: "" });
+    res.status(200).send({ logoutSuccess: true, message: "⭕ 로그아웃 되었습니다." });
+  } catch (err) {
+    res.json({ loginSuccess: false, message: `❌ 로그아웃 실패: ${err}` });
+  }
+});
 
 // post 요청
 app.post("/join", async (req, res) => {
@@ -41,7 +50,6 @@ app.post("/join", async (req, res) => {
     await user.save();
     return res.json({ success: true, message: `⭕ 가입이 완료되었습니다.` });
   } catch (err) {
-    console.log("❌ 가입실패: ", err);
     return res.json({ success: false, message: `❌ 가입실패: ${err}` });
   }
 });
